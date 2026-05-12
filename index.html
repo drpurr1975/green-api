@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GREEN-API Client</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface2: #e6edf5;
+    --border: #c8d5e3;
+    --border-focus: #1a9e5c;
+    --accent: #1a9e5c;
+    --accent-hover: #147a48;
+    --accent2: #0069a8;
+    --text: #1a2332;
+    --text-muted: #5a6a7e;
+    --text-dim: #374a5e;
+    --error: #c9243f;
+    --radius: 10px;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Syne', sans-serif;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 2px 8px rgba(0,0,0,0.04);
+    --shadow: 0 2px 8px rgba(0,0,0,0.08), 0 4px 20px rgba(0,0,0,0.05);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 15px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 40px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .logo {
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+  .logo span { color: var(--text); }
+
+  .header-badge {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 5px 11px;
+    border-radius: 6px;
+    background: rgba(26,158,92,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(26,158,92,0.3);
+    margin-left: auto;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .left-panel {
+    border-right: 1px solid var(--border);
+    padding: 32px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    overflow-y: auto;
+    background: var(--surface);
+  }
+
+  .right-panel {
+    padding: 32px 36px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-label {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .fieldset {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .fieldset-title {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .input-group { display: flex; flex-direction: column; gap: 6px; }
+
+  .input-group label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  input[type="text"], textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+
+  input[type="text"]:focus, textarea:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(26,158,92,0.12);
+    background: #fff;
+  }
+
+  input[type="text"]::placeholder, textarea::placeholder {
+    color: var(--text-muted);
+    opacity: 0.5;
+  }
+
+  textarea { resize: vertical; min-height: 82px; }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    width: 100%;
+    padding: 13px 20px;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(26,158,92,0.2);
+  }
+  .btn-primary:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(26,158,92,0.3);
+  }
+  .btn-primary:active { transform: translateY(0); box-shadow: none; }
+
+  .btn-secondary {
+    background: #fff;
+    color: var(--accent2);
+    border: 1.5px solid rgba(0,105,168,0.3);
+    box-shadow: var(--shadow-sm);
+  }
+  .btn-secondary:hover {
+    background: rgba(0,105,168,0.04);
+    border-color: var(--accent2);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 10px rgba(0,105,168,0.15);
+  }
+  .btn-secondary:active { transform: translateY(0); }
+
+  .btn .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(0,0,0,0.15);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.65s linear infinite;
+    display: none;
+    flex-shrink: 0;
+  }
+  .btn.loading .spinner { display: block; }
+  .btn.loading .btn-text { opacity: 0.65; }
+  .btn:disabled { cursor: not-allowed; opacity: 0.75; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .response-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .response-meta { display: flex; align-items: center; gap: 10px; }
+
+  .status-badge {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    padding: 4px 10px;
+    border-radius: 5px;
+    display: none;
+  }
+  .status-badge.success {
+    background: rgba(26,158,92,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(26,158,92,0.3);
+    display: inline-block;
+  }
+  .status-badge.error {
+    background: rgba(201,36,63,0.1);
+    color: var(--error);
+    border: 1px solid rgba(201,36,63,0.3);
+    display: inline-block;
+  }
+
+  .method-tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 5px;
+    background: rgba(0,105,168,0.08);
+    color: var(--accent2);
+    border: 1px solid rgba(0,105,168,0.2);
+    display: none;
+  }
+
+  .clear-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 5px 11px;
+    border-radius: 6px;
+    transition: all 0.15s;
+  }
+  .clear-btn:hover { color: var(--text); background: var(--surface2); border-color: #a0b0c0; }
+
+  .response-box {
+    flex: 1;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    overflow-y: auto;
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--text-dim);
+    white-space: pre-wrap;
+    min-height: 420px;
+    position: relative;
+    transition: border-color 0.2s;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .response-box.has-content { border-color: rgba(26,158,92,0.45); }
+  .response-box.has-error   { border-color: rgba(201,36,63,0.45); }
+
+  .response-placeholder {
+    color: var(--text-muted);
+    font-size: 14px;
+    opacity: 0.55;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    line-height: 2;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .json-key    { color: #0055aa; font-weight: 500; }
+  .json-string { color: #1a7a3c; }
+  .json-number { color: #a05000; }
+  .json-bool   { color: #8800aa; }
+  .json-null   { color: var(--text-muted); }
+
+  ::-webkit-scrollbar { width: 7px; height: 7px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #a0b0c0; }
+
+  @media (max-width: 740px) {
+    .layout { grid-template-columns: 1fr; }
+    .left-panel { border-right: none; border-bottom: 1px solid var(--border); }
+    header { padding: 16px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">GREEN<span>-API</span> Client</div>
+  <span class="header-badge">WhatsApp API</span>
+</header>
+
+<div class="layout">
+
+  <div class="left-panel">
+
+    <div>
+      <div class="panel-label">Подключение</div>
+      <div class="fieldset">
+        <div class="fieldset-title">Инстанс</div>
+        <div class="input-group">
+          <label>idInstance</label>
+          <input type="text" id="idInstance" placeholder="1234567890">
+        </div>
+        <div class="input-group">
+          <label>ApiTokenInstance</label>
+          <input type="text" id="apiToken" placeholder="d75b3a66374942c5b3c6b9b7d8...">
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-label">Аккаунт</div>
+      <div class="fieldset" style="gap:10px;">
+        <div class="fieldset-title">Методы инстанса</div>
+        <button class="btn btn-primary" onclick="callMethod('getSettings')">
+          <span class="spinner"></span>
+          <span class="btn-text">getSettings</span>
+        </button>
+        <button class="btn btn-secondary" onclick="callMethod('getStateInstance')">
+          <span class="spinner"></span>
+          <span class="btn-text">getStateInstance</span>
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-label">Отправка сообщения</div>
+      <div class="fieldset">
+        <div class="fieldset-title">sendMessage</div>
+        <div class="input-group">
+          <label>chatId (номер@c.us)</label>
+          <input type="text" id="sendMessage_chatId" placeholder="79001234567@c.us">
+        </div>
+        <div class="input-group">
+          <label>message</label>
+          <textarea id="sendMessage_text" placeholder="Hello, World!"></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="callMethod('sendMessage')">
+          <span class="spinner"></span>
+          <span class="btn-text">sendMessage</span>
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-label">Отправка файла</div>
+      <div class="fieldset">
+        <div class="fieldset-title">sendFileByUrl</div>
+        <div class="input-group">
+          <label>chatId (номер@c.us)</label>
+          <input type="text" id="sendFile_chatId" placeholder="79001234567@c.us">
+        </div>
+        <div class="input-group">
+          <label>urlFile</label>
+          <input type="text" id="sendFile_url" placeholder="https://example.com/image.jpg" oninput="autoFillFileName(this.value)">
+        </div>
+        <div class="input-group">
+          <label>fileName <span style="opacity:.45">(из URL)</span></label>
+          <input type="text" id="sendFile_name" placeholder="автозаполнение из URL">
+        </div>
+        <div class="input-group">
+          <label>caption <span style="opacity:.5">(опционально)</span></label>
+          <input type="text" id="sendFile_caption" placeholder="Описание файла">
+        </div>
+        <button class="btn btn-primary" onclick="callMethod('sendFileByUrl')">
+          <span class="spinner"></span>
+          <span class="btn-text">sendFileByUrl</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="right-panel">
+    <div class="response-header">
+      <div class="panel-label" style="margin-bottom:0">Ответ</div>
+      <div class="response-meta">
+        <span class="method-tag" id="methodTag"></span>
+        <span class="status-badge" id="statusBadge"></span>
+        <button class="clear-btn" onclick="clearResponse()">очистить</button>
+      </div>
+    </div>
+    <div class="response-box" id="responseBox">
+      <div class="response-placeholder" id="responsePlaceholder">
+        Выберите метод и нажмите кнопку<br>для отправки запроса
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const BASE_URL = 'https://api.green-api.com';
+
+  function getCredentials() {
+    const id    = document.getElementById('idInstance').value.trim();
+    const token = document.getElementById('apiToken').value.trim();
+    if (!id || !token) { showError('Заполните idInstance и ApiTokenInstance'); return null; }
+    return { id, token };
+  }
+
+  function setLoading(methodKey, loading) {
+    document.querySelectorAll('.btn').forEach(btn => {
+      if (btn.getAttribute('onclick') === `callMethod('${methodKey}')`) {
+        btn.classList.toggle('loading', loading);
+        btn.disabled = loading;
+      }
+    });
+  }
+
+  function showResponse(data, method, isError = false) {
+    const box   = document.getElementById('responseBox');
+    const badge = document.getElementById('statusBadge');
+    const tag   = document.getElementById('methodTag');
+
+    box.classList.toggle('has-content', !isError);
+    box.classList.toggle('has-error',    isError);
+
+    badge.className   = 'status-badge ' + (isError ? 'error' : 'success');
+    badge.textContent = isError ? 'ERROR' : '200 OK';
+
+    tag.style.display = 'inline-block';
+    tag.textContent   = method;
+
+    const json = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+    box.innerHTML = syntaxHighlight(json);
+  }
+
+  function showError(msg) { showResponse({ error: msg }, 'CLIENT', true); }
+
+  function clearResponse() {
+    const box   = document.getElementById('responseBox');
+    const badge = document.getElementById('statusBadge');
+    const tag   = document.getElementById('methodTag');
+    box.innerHTML = '<div class="response-placeholder" id="responsePlaceholder">Выберите метод и нажмите кнопку<br>для отправки запроса</div>';
+    box.className     = 'response-box';
+    badge.className   = 'status-badge';
+    tag.style.display = 'none';
+  }
+
+  function syntaxHighlight(json) {
+    return json.replace(
+      /("(?:\\u[0-9a-fA-F]{4}|\\[^u]|[^\\"])*"(?:\s*:)?|\b(?:true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+      match => {
+        let cls = 'json-number';
+        if (/^"/.test(match))              cls = /:$/.test(match) ? 'json-key' : 'json-string';
+        else if (/true|false/.test(match)) cls = 'json-bool';
+        else if (/null/.test(match))       cls = 'json-null';
+        return `<span class="${cls}">${match}</span>`;
+      }
+    );
+  }
+
+  function autoFillFileName(url) {
+    const nameInput = document.getElementById('sendFile_name');
+    try {
+      const pathname = new URL(url).pathname;
+      const name = pathname.split('/').pop().split('?')[0];
+      if (name) nameInput.value = decodeURIComponent(name);
+    } catch {
+      // invalid URL yet — try simple split
+      const name = url.split('/').pop().split('?')[0];
+      if (name && name.includes('.')) nameInput.value = decodeURIComponent(name);
+    }
+  }
+
+  async function callMethod(method) {
+    const creds = getCredentials();
+    if (!creds) return;
+
+    setLoading(method, true);
+    try {
+      let url, options;
+
+      if (method === 'getSettings') {
+        url     = `${BASE_URL}/waInstance${creds.id}/getSettings/${creds.token}`;
+        options = { method: 'GET' };
+
+      } else if (method === 'getStateInstance') {
+        url     = `${BASE_URL}/waInstance${creds.id}/getStateInstance/${creds.token}`;
+        options = { method: 'GET' };
+
+      } else if (method === 'sendMessage') {
+        const chatId  = document.getElementById('sendMessage_chatId').value.trim();
+        const message = document.getElementById('sendMessage_text').value.trim();
+        if (!chatId || !message) { showError('Заполните chatId и текст сообщения'); return; }
+        url     = `${BASE_URL}/waInstance${creds.id}/sendMessage/${creds.token}`;
+        options = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chatId, message })
+        };
+
+      } else if (method === 'sendFileByUrl') {
+        const chatId   = document.getElementById('sendFile_chatId').value.trim();
+        const urlFile  = document.getElementById('sendFile_url').value.trim();
+        const fileName = document.getElementById('sendFile_name').value.trim();
+        const caption  = document.getElementById('sendFile_caption').value.trim();
+        if (!chatId || !urlFile) { showError('Заполните chatId и urlFile'); return; }
+        if (!fileName) {
+          const derived = urlFile.split('/').pop().split('?')[0];
+          document.getElementById('sendFile_name').value = derived;
+          fileName = derived;
+        }
+        if (!fileName) { showError('Не удалось определить fileName из URL — заполните вручную'); return; }
+        const body = { chatId, urlFile, fileName };
+        if (caption) body.caption = caption;
+        url     = `${BASE_URL}/waInstance${creds.id}/sendFileByUrl/${creds.token}`;
+        options = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        };
+      }
+
+      const response = await fetch(url, options);
+      let data;
+      const text = await response.text();
+      try { data = JSON.parse(text); }
+      catch { data = { rawResponse: text, statusCode: response.status }; }
+      showResponse(data, method, !response.ok);
+
+    } catch (err) {
+      const msg  = err.message || 'Ошибка сети';
+      const hint = (msg.includes('fetch') || msg.includes('Failed') || msg.includes('network'))
+        ? ' (CORS или хост недоступен)' : '';
+      showError(msg + hint);
+    } finally {
+      setLoading(method, false);
+    }
+  }
+</script>
+</body>
+</html>
